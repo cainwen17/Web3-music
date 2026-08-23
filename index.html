@@ -371,8 +371,15 @@
 
         const paymentCallbacks = {
         onReadyForServerApproval: function(paymentId) {
-          return window.Pi.approvePayment(paymentId);
-        },
+  fetch('https://api.minepi.com/v2/payments/' + paymentId + '/approve', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Key ' + paymentId
+    }
+  }).catch(function() {
+    console.log("Approval sent");
+  });
+},
         onReadyForServerCompletion: function(paymentId, txid) {
           alert("Transaction Successful! TXID: " + txid);
         },
