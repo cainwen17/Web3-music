@@ -370,10 +370,22 @@
   };
 
   const paymentCallbacks = {
-    onReadyForServerApproval: function(paymentId) {
-      console.log("Approval paymentId:", paymentId);
-      window.Pi.approvePayment(paymentId);
-    },
+    const paymentCallbacks = {
+        onReadyForServerApproval: function(paymentId) {
+          console.log("Approval paymentId:", paymentId);
+          // Tambahkan 'return' di depan window.Pi.approvePayment
+          return window.Pi.approvePayment(paymentId);
+        },
+        onReadyForServerCompletion: function(paymentId, txid) {
+          alert("Transaction Successful! TXID: " + txid);
+        },
+        onCancel: function(paymentId) {
+          console.log("Payment cancelled:", paymentId);
+        },
+        onError: function(error, payment) {
+          alert("Payment Error: " + (error.message || "Unknown error"));
+        }
+      };
     onReadyForServerCompletion: function(paymentId, txid) {
       alert("Transaction Successful! TXID: " + txid);
     },
