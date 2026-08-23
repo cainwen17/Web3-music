@@ -370,11 +370,19 @@
         };
 
         const paymentCallbacks = {
-            onReadyForServerApproval: function(pId) {},
-            onReadyForServerCompletion: function(pId, txid) { alert("Transaction Successful! TXID: " + txid); },
-            onCancel: function(pId) { alert("Canceled."); },
-            onError: function(err) { alert("Error occurred."); }
-        };
+        onReadyForServerApproval: function(paymentId) {
+          return window.Pi.approvePayment(paymentId);
+        },
+        onReadyForServerCompletion: function(paymentId, txid) {
+          alert("Transaction Successful! TXID: " + txid);
+        },
+        onCancel: function(paymentId) {
+          alert("Payment Cancelled");
+        },
+        onError: function(error, payment) {
+          alert("Payment Error: " + error.message);
+        }
+      };
 
         try {
             await window.Pi.createPayment(paymentData, paymentCallbacks);
