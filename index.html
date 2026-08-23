@@ -370,14 +370,25 @@
   };
 
   const paymentCallbacks = {
-    const paymentCallbacks = {
         onReadyForServerApproval: function(paymentId) {
-          console.log("Approval paymentId:", paymentId);
-          // Tambahkan 'return' di depan window.Pi.approvePayment
-          return window.Pi.approvePayment(paymentId);
+          fetch('https://pi-backend-ashy.vercel.app/api/approve', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId: paymentId })
+          })
+          .then(response => response.json())
+          .then(data => console.log("Approval Success:", data))
+          .catch(error => console.error("Approval Error:", error));
         },
         onReadyForServerCompletion: function(paymentId, txid) {
-          alert("Transaction Successful! TXID: " + txid);
+          fetch('https://pi-backend-ashy.vercel.app/api/complete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentId: paymentId, txid: txid })
+          })
+          .then(response => response.json())
+          .then(data => console.log("Completion Success:", data))
+          .catch(error => console.error("Completion Error:", error));
         },
         onCancel: function(paymentId) {
           console.log("Payment cancelled:", paymentId);
@@ -386,16 +397,6 @@
           alert("Payment Error: " + (error.message || "Unknown error"));
         }
       };
-    onReadyForServerCompletion: function(paymentId, txid) {
-      alert("Transaction Successful! TXID: " + txid);
-    },
-    onCancel: function(paymentId) {
-      console.log("Payment cancelled:", paymentId);
-    },
-    onError: function(error, payment) {
-      alert("Payment Error: " + (error.message || "Unknown error"));
-    }
-  };
 
   try {
     await window.Pi.createPayment(paymentData, paymentCallbacks);
