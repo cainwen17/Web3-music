@@ -358,40 +358,38 @@
     }
 
     async function payWithPi() {
-        if (!isPiBrowser) {
-            window.location.href = "https://pi.browser/" + myAppDomain;
-            return;
-        }
+  if (!isPiBrowser) {
+    window.location.href = "https://pi.browser/" + myAppDomain;
+    return;
+  }
 
-        const paymentData = {
-            amount: 1,
-            memo: "Purchase Audio NFT",
-            metadata: { songId: "track_001" }
-        };
+  const paymentData = {
+    amount: 1,
+    memo: "Purchase Audio NFT",
+    metadata: { songId: "track_001" }
+  };
 
-        const paymentCallbacks = {
-        onReadyForServerApproval: function(paymentId) {
-          console.log("Approving payment:", paymentId);
-          // Menggunakan endpoint Sandbox internal Pi SDK
-          return window.Pi.approvePayment(paymentId);
-        },
-},
-        onReadyForServerCompletion: function(paymentId, txid) {
-          alert("Transaction Successful! TXID: " + txid);
-        },
-        onCancel: function(paymentId) {
-          alert("Payment Cancelled");
-        },
-        onError: function(error, payment) {
-          alert("Payment Error: " + error.message);
-        }
-      };
+  const paymentCallbacks = {
+    onReadyForServerApproval: function(paymentId) {
+      console.log("Approval paymentId:", paymentId);
+      window.Pi.approvePayment(paymentId);
+    },
+    onReadyForServerCompletion: function(paymentId, txid) {
+      alert("Transaction Successful! TXID: " + txid);
+    },
+    onCancel: function(paymentId) {
+      console.log("Payment cancelled:", paymentId);
+    },
+    onError: function(error, payment) {
+      alert("Payment Error: " + (error.message || "Unknown error"));
+    }
+  };
 
-        try {
-            await window.Pi.createPayment(paymentData, paymentCallbacks);
-        } catch (error) {
-            alert("Failed to process payment.");
-        }
+  try {
+    await window.Pi.createPayment(paymentData, paymentCallbacks);
+  } catch (error) {
+    alert("Failed to process payment.");
+  }
     }
 </script>
 
