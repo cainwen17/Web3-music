@@ -341,69 +341,61 @@
     }
 
     async function connectPiWallet() {
-        if (!isPiBrowser) {
-            window.location.href = "https://pi.browser/" + myAppDomain;
-            return;
-        }
-
-        try {
-            const scopes = ['username', 'payments'];
-            const auth = await window.Pi.authenticate(scopes, function(p){});
-            document.getElementById('walletBtn').innerText = "Connected";
-            document.getElementById('userStatus').innerText = "User: " + auth.user.username;
-            alert("Successfully connected: " + auth.user.username);
-        } catch (error) {
-            alert("Pi Wallet authentication failed.");
-        }
+    if (!isPiBrowser) {
+      window.location.href = "https://pi.browser/" + myAppDomain;
+      return;
     }
 
-    async function payWithPi() {
-  if (!isPiBrowser) {
-    window.location.href = "https://pi.browser/" + myAppDomain;
-    return;
-  }
+    try {
+      const scopes = ['username', 'payments'];
+      
+      const auth = await window.Pi.authenticate(scopes, function(payment) {
+        console.log("Incomplete payment found:", payment);
+        return window.Pi.approvePayment(payment.identifier);
+      });
 
-  const paymentData = {
-    amount: 1,
-    memo: "Purchase Audio NFT",
-    metadata: { songId: "track_001" }
-  };
-
-  const paymentCallbacks = {
-        onReadyForServerApproval: function(paymentId) {
-          fetch('https://pi-backend-ashy.vercel.app/api/approve', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paymentId: paymentId })
-          })
-          .then(response => response.json())
-          .then(data => console.log("Approval Success:", data))
-          .catch(error => console.error("Approval Error:", error));
-        },
-        onReadyForServerCompletion: function(paymentId, txid) {
-          fetch('https://pi-backend-ashy.vercel.app/api/complete', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ paymentId: paymentId, txid: txid })
-          })
-          .then(response => response.json())
-          .then(data => console.log("Completion Success:", data))
-          .catch(error => console.error("Completion Error:", error));
-        },
-        onCancel: function(paymentId) {
-          console.log("Payment cancelled:", paymentId);
-        },
-        onError: function(error, payment) {
-          alert("Payment Error: " + (error.message || "Unknown error"));
-        }
-      };
-
-  try {
-    await window.Pi.createPayment(paymentData, paymentCallbacks);
-  } catch (error) {
-    alert("Failed to process payment.");
-  }
+      document.getElementById('walletBtn').innerText = "Connected";
+      document.getElementById('userStatus').innerText = "User: " + auth.user.username;
+      alert("Successfully connected: " + auth.user.username);
+    } catch (error) {
+      alert("Pi Wallet authentication failed.");
     }
+  }
+
+  async function payWithPi() {
+    if (!isPiBrowser) {
+      window.location.href = "https://pi.browser/" + myAppDomain;
+      return;
+    }
+
+    const paymentData = {
+      amount: 1,
+      memo: "Purchase Audio NFT",
+      metadata: { songId: "track_001" }
+    };
+
+    const paymentCallbacks = {
+      onReadyForServerApproval: function(paymentId) {
+        console.log("Approving payment:", paymentId);
+        return window.Pi.approvePayment(paymentId);
+      },
+      onReadyForServerCompletion: function(paymentId, txid) {
+        alert("Transaction Successful! TXID: " + txid);
+      },
+      onCancel: function(paymentId) {
+        console.log("Payment cancelled:", paymentId);
+      },
+      onError: function(error, payment) {
+        alert("Payment Error: " + (error.message || "Unknown error"));
+      }
+    };
+
+    try {
+      await window.Pi.createPayment(paymentData, paymentCallbacks);
+    } catch (error) {
+      alert("Failed to process payment.");
+    }
+  }
 </script>
 
 </body>
